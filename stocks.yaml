@@ -1,0 +1,26 @@
+# 종목 추가/삭제는 이 파일만 수정하고 봇을 재시작하면 됩니다.
+# 재빌드 불필요.
+#
+# market: KR (한국거래소, 6자리 코드) | US (나스닥/NYSE, 티커)
+# message: 상승(+) 시 표 아래 특수 메시지 코드블록에 넣을 문구 (선택, 없으면 안 넣음)
+stocks:
+  - ticker: "005930"
+    name: "삼성전자"
+    market: KR
+    upMessage: "삼성전자"
+    downMessage: "떡락1"
+  - ticker: "000660"
+    name: "SK하이닉스"
+    market: KR
+    upMessage: "하이닉스 떡상 간다"
+    downMessage: "떡락2"
+  - ticker: "NVDA"
+    name: "엔비디아"
+    market: US
+    upMessage: "엔비디아 우주로!"
+    downMessage: "떡락3"
+  - ticker: "SPCX"
+    name: "스페이스X"
+    market: US
+    upMessage: "SPACEX 화성 갈끄니깐! 아으야!"
+    downMessage: "떡락4"
