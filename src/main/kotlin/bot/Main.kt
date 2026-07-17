@@ -4,6 +4,7 @@ import bot.discord.StockBot
 import bot.model.StockConfig
 import bot.model.StockList
 import bot.quote.YahooQuoteProvider
+import bot.schedule.MarketScheduler
 import com.charleskorn.kaml.Yaml
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -14,6 +15,7 @@ private val logger = LoggerFactory.getLogger("bot.Main")
 
 fun main() {
     val discordToken = env("DISCORD_TOKEN")
+    val channelId = env("DISCORD_CHANNEL_ID")
     val stocksPath = env("STOCKS_FILE")
     val stocks = loadStocks(stocksPath)
 
@@ -33,8 +35,13 @@ fun main() {
     }
     logger.info("봇 준비 완료. /{} 명령 대기 중 ({}개 서버)", COMMAND_NAME, jda.guilds.size)
 
+    // 장 마감 시각마다 해당 장의 시세를 채널로 자동 발송한다.
+    val scheduler = MarketScheduler(jda, channelId, stocks, quoteProvider)
+    scheduler.start()
+
     // 프로세스 종료 시 자원 정리. (JDA 스레드가 살아있어 main 이 반환돼도 봇은 계속 동작)
     Runtime.getRuntime().addShutdownHook(Thread {
+        scheduler.stop()
         quoteProvider.close()
         jda.shutdown()
     })
@@ -51,4 +58,4 @@ private fun loadStocks(stocksPath: String): List<StockConfig> {
 }
 
 private fun env(key: String) =
-    System.getenv(key) ?: error("환경변수 key가 설정이 안돼있습니다.")
+    System.getenv(key) ?: error("환경변수 $key 가 설정이 안돼있습니다.")

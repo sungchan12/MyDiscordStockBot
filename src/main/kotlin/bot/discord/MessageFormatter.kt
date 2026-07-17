@@ -98,6 +98,20 @@ private fun displayWidth(text: String): Int = text.sumOf { ch ->
 }
 
 /**
+ * 스냅샷을 Discord 로 보낼 메시지 목록으로 만든다.
+ *
+ * 첫 번째는 항상 시세 표이고, 그 뒤에 상승/하락 특수 메시지 블록이
+ * 내용이 있을 때만 붙는다. 보내는 방법(슬래시 커맨드 응답 / 채널 직접 발송)은
+ * 호출하는 쪽이 정한다.
+ */
+fun buildMessages(snapshot: MarketSnapshot): List<String> {
+    val blocks = specialMessageBlock(snapshot)
+        .filter { it.isNotEmpty() }
+        .map { "```\n" + it.joinToString("\n") + "\n```" }
+    return listOf(formatSnapshot(snapshot)) + blocks
+}
+
+/**
  * 상승(+)한 종목들의 message 를 하나의 코드블록으로 묶는다.
  * 조회 표 다음에 별도 메시지로 보낼 용도이며, 해당 종목이 없으면 null.
  */

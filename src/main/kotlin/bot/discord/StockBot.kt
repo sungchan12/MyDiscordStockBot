@@ -37,13 +37,10 @@ class StockBot(
             val hook = event.hook
             runCatching {
                 val snapshot = quoteProvider.fetch(stocks)
-                // 먼저 시세 표(코드블록)를 보내고,
-                hook.editOriginal(formatSnapshot(snapshot)).queue()
-                // 상승/하락 종목의 특수 메시지를 각각 코드블록으로 묶어 이어 보낸다. (빈 그룹은 건너뜀)
-                val (upMessages, downMessages) = specialMessageBlock(snapshot)
-                listOf(upMessages, downMessages)
-                    .filter { it.isNotEmpty() }
-                    .forEach { hook.sendMessage("```\n" + it.joinToString("\n") + "\n```").queue() }
+                // 첫 메시지(시세 표)로 지연시킨 응답을 채우고, 특수 메시지 블록은 이어 보낸다.
+                val messages = buildMessages(snapshot)
+                hook.editOriginal(messages.first()).queue()
+                messages.drop(1).forEach { hook.sendMessage(it).queue() }
             }.onFailure { e ->
                 logger.warn("시세 조회 실패", e)
                 hook.editOriginal("⚠️ 시세 조회 중 오류가 발생했습니다: ${e.message}").queue()

@@ -43,6 +43,10 @@ data class MarketSnapshot(
     val exchangeRate: Double
 ) {
     fun forMarket(market: Market) = results.filter { it.config.market == market }
+
+    /** 한 장의 종목만 남긴 스냅샷. 장 마감 알림처럼 해당 장만 다룰 때 쓴다. */
+    fun onlyMarket(market: Market) = copy(results = forMarket(market))
+
     fun latestTradingDate(market: Market): LocalDate? =
         forMarket(market).filterIsInstance<QuoteResult.Success>()
             .maxOfOrNull { it.quote.tradingDate }
